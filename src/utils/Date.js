@@ -21,7 +21,7 @@ export default {
      years: Array.from({ length: 51 }, (_, i) => new Date().getFullYear() - i),
 
      daysOfMonth(year, month) {
-          return new Date(year, month, 0).getDate()
+          return new Date(year, month + 1, 0).getDate()
      },
 
      firstDay(year, month) {

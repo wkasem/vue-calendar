@@ -16,6 +16,7 @@ const currentMonth = ref(new Date().getMonth());
 const daysOfMonth = computed(() =>
   DateUtil.daysOfMonth(currentYear.value, currentMonth.value)
 );
+
 const firstDay = computed(() =>
   DateUtil.firstDay(currentYear.value, currentMonth.value)
 );
@@ -46,26 +47,23 @@ const selectDate = (day) => {
 };
 
 const days = computed(() => {
-  return Array.from(
-    { length: daysOfMonth.value + firstDay.value - 1 },
-    (_, i) => {
-      let num = i - firstDay.value + 1;
+  return Array.from({ length: daysOfMonth.value + firstDay.value }, (_, i) => {
+    let num = i - firstDay.value + 1;
 
-      return {
-        num: i >= firstDay.value ? num : "",
-        selected: DateUtil.isEqualAny(
-          new Date(currentYear.value, currentMonth.value, num),
-          selectedDateStart.value,
-          selectedDateEnd.value
-        ),
-        withinSelected: DateUtil.within(
-          new Date(currentYear.value, currentMonth.value, num),
-          selectedDateStart.value,
-          selectedDateEnd.value
-        ),
-      };
-    }
-  );
+    return {
+      num: i >= firstDay.value ? num : "",
+      selected: DateUtil.isEqualAny(
+        new Date(currentYear.value, currentMonth.value, num),
+        selectedDateStart.value,
+        selectedDateEnd.value
+      ),
+      withinSelected: DateUtil.within(
+        new Date(currentYear.value, currentMonth.value, num),
+        selectedDateStart.value,
+        selectedDateEnd.value
+      ),
+    };
+  });
 });
 
 const canSelect = computed(() => {
