@@ -13,14 +13,6 @@ const rangeText = ref("");
 const currentYear = ref(new Date().getFullYear());
 const currentMonth = ref(new Date().getMonth());
 
-const daysOfMonth = computed(() =>
-  DateUtil.daysOfMonth(currentYear.value, currentMonth.value)
-);
-
-const firstDay = computed(() =>
-  DateUtil.firstDay(currentYear.value, currentMonth.value)
-);
-
 const selectedDateStart = ref(null);
 const selectedDateEnd = ref(null);
 
@@ -47,18 +39,49 @@ const selectDate = (day) => {
 };
 
 const days = computed(() => {
-  return Array.from({ length: daysOfMonth.value + firstDay.value }, (_, i) => {
-    let num = i - firstDay.value + 1;
+  let year = currentYear.value;
+  let month = currentMonth.value;
+  let firstDay = DateUtil.firstDay(currentYear.value, currentMonth.value);
+  let daysOfMonth = DateUtil.daysOfMonth(year, month);
+
+  let [prevYear, prevMonth] = DateUtil.prev(year, month);
+  let prevDaysOfMonth = DateUtil.daysOfMonth(prevYear, prevMonth);
+
+  let [nextYear, nextMonth] = DateUtil.next(year, month);
+  let nextDays = 0;
+
+  return Array.from({ length: 42 }, (_, i) => {
+    let num = i - firstDay + 1;
+    let active = true;
+    year = currentYear.value;
+    month = currentMonth.value;
+
+    if (num > daysOfMonth) {
+      num = ++nextDays;
+      year = nextYear;
+      month = nextMonth;
+      active = false;
+    }
+
+    if (i < firstDay) {
+      num = prevDaysOfMonth - firstDay + i + 1;
+      year = prevYear;
+      month = prevMonth;
+      active = false;
+    }
+
+    let date = new Date(year, month, num);
 
     return {
-      num: i >= firstDay.value ? num : "",
+      num,
+      active,
       selected: DateUtil.isEqualAny(
-        new Date(currentYear.value, currentMonth.value, num),
+        date,
         selectedDateStart.value,
         selectedDateEnd.value
       ),
       withinSelected: DateUtil.within(
-        new Date(currentYear.value, currentMonth.value, num),
+        date,
         selectedDateStart.value,
         selectedDateEnd.value
       ),
@@ -138,7 +161,7 @@ const clearSelection = () => {
         <div class="calendar-day">
           <div
             :class="{
-              'not-active': day.num == '',
+              'not-active': !day.active,
               selected: day.selected,
               'within-selected': day.withinSelected,
             }"
@@ -235,6 +258,7 @@ const clearSelection = () => {
   color: #5a5a5a;
   opacity: 0;
   z-index: -999;
+  background-color: #fff;
 }
 
 .date-picker.active .calendar {
@@ -283,6 +307,10 @@ const clearSelection = () => {
 .calendar-day .selected {
   background: #050e3e;
   color: #fff;
+}
+.calendar-day .not-active {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .calendar-day .within-selected {
@@ -341,7 +369,6 @@ const clearSelection = () => {
 .btn {
   all: unset;
   padding: 10px 15px;
-  margin: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 5px;

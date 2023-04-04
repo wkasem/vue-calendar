@@ -27,7 +27,28 @@ export default {
      firstDay(year, month) {
           return new Date(year, month, 1).getDay()
      },
+     prev(year, month) {
 
+          if (month == 0) {
+               month = 11
+               year--;
+          } else {
+               month--;
+          }
+
+          return [year, month];
+     },
+     next(year, month) {
+
+          if (month == 11) {
+               month = 0
+               year++;
+          } else {
+               month++;
+          }
+
+          return [year, month];
+     },
      isEqual(dateOne, dateTwo) {
           return this.isEqualAny(dateOne, dateTwo)
      },
